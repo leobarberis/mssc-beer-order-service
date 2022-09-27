@@ -55,5 +55,6 @@ public class BeerOrderLineDto extends BaseItem {
     private UUID beerId;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String beerName;
+    private Integer quantityAllocated;
 
 }
