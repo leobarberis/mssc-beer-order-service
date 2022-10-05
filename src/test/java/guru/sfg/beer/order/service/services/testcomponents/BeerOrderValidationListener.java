@@ -21,11 +21,15 @@ public class BeerOrderValidationListener {
     public void listen(Message message) {
 
         ValidateBeerOrderRequest orderRequest = (ValidateBeerOrderRequest) message.getPayload();
-        jmsTemplate.convertAndSend(JmsConfig.VALIDATE_ORDER_RESULT_QUEUE,
-                ValidationBeerOrderResultEvent.builder()
-                        .isValid((orderRequest.getBeerOrderDto().getCustomerRef() == null)
-                                || !orderRequest.getBeerOrderDto().getCustomerRef().equals("fail-validation"))
-                        .orderId(orderRequest.getBeerOrderDto().getId())
-                        .build());
+        String customerRef = orderRequest.getBeerOrderDto().getCustomerRef();
+        final boolean networkError = customerRef != null && customerRef.equals("validation-networking-error");
+        if(!networkError) {
+            jmsTemplate.convertAndSend(JmsConfig.VALIDATE_ORDER_RESULT_QUEUE,
+                    ValidationBeerOrderResultEvent.builder()
+                            .isValid((orderRequest.getBeerOrderDto().getCustomerRef() == null)
+                                    || !orderRequest.getBeerOrderDto().getCustomerRef().equals("fail-validation"))
+                            .orderId(orderRequest.getBeerOrderDto().getId())
+                            .build());
+        }
     }
 }

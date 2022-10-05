@@ -35,6 +35,7 @@ public class BeerOrderAllocationListener {
 
         final boolean allocationError = customerRef != null && customerRef.equals("fail-allocation");
         final boolean allocationPartialError = customerRef != null && customerRef.equals("fail-allocation-no-inventory");
+        final boolean networkError = customerRef != null && customerRef.equals("allocation-networking-error");
 
         //Allocation Compensation logic
         List<BeerOrderLineDto> updatedBeerOrderLines = request.getBeerOrderDto().getBeerOrderLines()
@@ -46,12 +47,13 @@ public class BeerOrderAllocationListener {
 
         request.getBeerOrderDto().setBeerOrderLines(updatedBeerOrderLines);
 
-
-        jmsTemplate.convertAndSend(JmsConfig.ALLOCATE_ORDER_RESULT_QUEUE, AllocationOrderResult.builder()
-                .beerOrderDto(request.getBeerOrderDto())
-                .pendingInventory(allocationPartialError)
-                .allocationError(allocationError)
-                .build());
+        if(!networkError) {
+            jmsTemplate.convertAndSend(JmsConfig.ALLOCATE_ORDER_RESULT_QUEUE, AllocationOrderResult.builder()
+                    .beerOrderDto(request.getBeerOrderDto())
+                    .pendingInventory(allocationPartialError)
+                    .allocationError(allocationError)
+                    .build());
+        }
     }
 
     private BeerOrderLineDto cloneBeerOrderLineDto(BeerOrderLineDto dto) {
