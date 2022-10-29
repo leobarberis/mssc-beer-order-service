@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+//TODO add /customers EP
 @RequestMapping("/api/v1/customers/{customerId}/")
 @RestController
 public class BeerOrderController {
